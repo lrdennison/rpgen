@@ -1,7 +1,10 @@
 # rpgen
 Parser Generator, written in Ruby
 
-Random
+I'm writing this as using the bison-generated C++ parser is difficult.
+Also, I also need parsers that work with Ruby.
+
+= Random =
 
 The parser literature allows empty rules (productions).  These are
 denoted using a special terminal (lower case epsilon).  The use of
@@ -9,7 +12,7 @@ epsilon was never really explained, just assumed.
 
 The "dot" is also known as a pointer.
 
-Key Concepts
+= Key Concepts =
 
 * Rule to Items
 * Closure of an item set
@@ -22,12 +25,13 @@ Key Concepts
   * Items with the dot at the end correspond to reductions
   * Items with the dot not at the end are shifts
 
-Special Symbols
+== Special Symbols ==
+
 * start
-* end-of-file
+* eof (end-of-file)
 * empty
 
-The First Concept
+== The First Concept ==
 
 Every non-terminal eventually starts with a set of terminals.  One of
 those terminals might be the empty terminal.  Owing to things like
@@ -37,7 +41,7 @@ iterations don't modify the sets.
 
 Note that a *first* set might include the terminal empty.
 
-The Follow Concept
+== The Follow Concept ==
 
 We want to know the set of terminals which might appear after a
 non-terminal, constrained by the grammar.  The set of follow terminals
