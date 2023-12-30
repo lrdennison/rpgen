@@ -91,7 +91,15 @@ module Rpgen
     # Grammar DSL
     ############################################################
     
-    def terminal symbol
+    def terminal n
+      symbol = n.to_sym
+
+      @terminal_keys ||= Array.new
+      if @terminal_keys.include? symbol then
+        raise "duplicate terminal #{symbol}"
+      end
+      @terminal_keys.push symbol
+      
       x = Terminal.new symbol
       @terminals.push( x)
       return x
@@ -181,8 +189,7 @@ module Rpgen
     # First
     ############################################################
 
-    # Simple fixed-point method
-    def compute_first
+    def first_init
       terminal_keys.each do |x|
         @first[x] = [x]
       end
@@ -190,23 +197,42 @@ module Rpgen
       rule_keys.each do |x|
         @first[x] = Array.new
       end
+    end
 
-      modified = true
-      while modified do
-        modified = false
+    def first_add key, x
+      if x.is_a?(Array) then
+        x.each do |v|
+          first_add key, v
+        end
+        return
+      end
+
+      set = @first[key]
+      unless set.include?( x) then
+        set.push( x)
+        @modified = true
+      end
+    end
+    
+    
+    # Simple fixed-point method
+    def compute_first
+      first_init
+      
+      @modified = true
+      while @modified do
+        @modified = false
+        
         @rules.each do |rule|
-          r = first[rule.name]
+          key = rule.name
+          r = first[key]
           rule.components.each do |symbol|
             a = first[symbol]
-            a.each do |n|
-              if not r.include?(n) then
-                r.push( n)
-                modified = true
-              end
+            first_add key, a
+            if not a.include?(Rpgen::empty) then
+              @first[key].delete_if { |x| x==Rpgen::empty }
+              break
             end
-
-            # TODO handle empty productions
-            break
           end
         end
       end
