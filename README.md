@@ -52,7 +52,7 @@ followed by end-of-file.
 We are calculating follow(A).
 
 Consider:
-$$$R \rightarrow A B C$$
+$$R \rightarrow A B C$$
 
 The incremental update is: follow(A) = follow(A) union (first(B) -
 empty).  If first(B) contains empty, then we must also do:
