@@ -1,14 +1,26 @@
 # rpgen
 Parser Generator, written in Ruby
 
-I'm writing this as using the bison-generated C++ parser is difficult.
+I'm writing this as using standard the bison-generated C++ parser is difficult to work with.
 Also, I also need parsers that work with Ruby.
 
-# Random
+Why write the tool in Ruby?  I wanted to make it easier to write
+different backends and even monkey-patch the code.
+
+## References
+
+[Wikipedia LR(0) Parser][https://en.wikipedia.org/wiki/LR_parser]
+
+# Contents
+
+* [First](md/first.md)
+
+
+## Random
 
 The parser literature allows empty rules (productions).  These are
-denoted using a special terminal (lower case epsilon).  The use of
-epsilon was never really explained, just assumed.
+denoted using a special terminal ($\epsilon$).  The use of
+epsilon was never really explained, it was just assumed that you knew.
 
 The "dot" is also known as a pointer.
 
@@ -51,7 +63,7 @@ followed by end-of-file.
 
 We are calculating follow(A).
 
-Consider:
+Consider the rule:
 $$R \rightarrow A B C$$
 
 The incremental update is: follow(A) = follow(A) union (first(B) -
