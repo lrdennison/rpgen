@@ -1,5 +1,5 @@
 # rpgen
-Parser Generator, written in Ruby
+A Parser Generator, written in Ruby.
 
 I'm writing this as using standard the bison-generated C++ parser is difficult to work with.
 Also, I also need parsers that work with Ruby.
@@ -7,12 +7,26 @@ Also, I also need parsers that work with Ruby.
 Why write the tool in Ruby?  I wanted to make it easier to write
 different backends and even monkey-patch the code.
 
+## Introduction
+
+The tool works by:
+* Generate an LR(0) transition table
+* Some states might have shift/reduce or reduce/reduce conflicts.
+  These are resolved using the reduction rule's *follow* set.
+
+I'm not quite sure what sort of parser is generated.  It does use the
+look-ahead token to resolve shift/reduce conflicts, so the tool can handle
+more grammars than an LR(0) parser.
+
 ## References
 
 [Wikipedia LR Parser](https://en.wikipedia.org/wiki/LR_parser)
 
 # Contents
 
+* [Grammar](md/grammar.md)
+* [Item](md/item.md)
+* [Item Set](md/item_set.md)
 * [First](md/first.md)
 * [Follow](md/follow.md)
 
