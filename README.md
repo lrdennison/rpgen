@@ -9,7 +9,7 @@ different backends and even monkey-patch the code.
 
 ## References
 
-[Wikipedia LR(0) Parser](https://en.wikipedia.org/wiki/LR_parser)
+[Wikipedia LR Parser](https://en.wikipedia.org/wiki/LR_parser)
 
 # Contents
 
