@@ -9,12 +9,12 @@ different backends and even monkey-patch the code.
 
 ## References
 
-[Wikipedia LR(0) Parser][https://en.wikipedia.org/wiki/LR_parser]
+[Wikipedia LR(0) Parser](https://en.wikipedia.org/wiki/LR_parser)
 
 # Contents
 
 * [First](md/first.md)
-
+* [Follow](md/follow.md)
 
 ## Random
 
@@ -43,36 +43,3 @@ The "dot" is also known as a pointer.
 * eof (end-of-file)
 * empty
 
-## The First Concept
-
-Every non-terminal eventually starts with a set of terminals.  One of
-those terminals might be the empty terminal.  Owing to things like
-left recursion, the easiest way to calculate the first sets is using
-iterative updates.  These wind up with a fixed-point where further
-iterations don't modify the sets.
-
-Note that a *first* set might include the terminal empty.
-
-## The Follow Concept
-
-We want to know the set of terminals which might appear after a
-non-terminal, constrained by the grammar.  The set of follow terminals
-cannot include the terminal empty.  The start rule in the augmented
-grammar has end-of-file as the last element.  All other rules are
-followed by end-of-file.
-
-We are calculating follow(A).
-
-Consider the rule:
-$$R \rightarrow A B C$$
-
-The incremental update is: follow(A) = follow(A) union (first(B) -
-empty).  If first(B) contains empty, then we must also do:
-
-follow(A) := follow(A) union (first(C) - empty).
-
-If first(C) contains empty, then follow(A) := follow(A) union follow(R).
-
-Most of the literature tries to explain first and follow using
-mathematical notation.  Owing to the different cases, the math looks
-ugly.  For example, note that follow(C) := follow(C) union follow(R).
