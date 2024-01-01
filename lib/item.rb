@@ -3,10 +3,12 @@ module Rpgen
   class Item
     attr_accessor :rule
     attr_accessor :dot
+    attr_accessor :is_core
 
     def initialize rule
       @rule = rule
       @dot = 0
+      @is_core = false
     end
 
     def name

@@ -216,7 +216,7 @@ module Rpgen
     
     
     # Simple fixed-point method
-    def compute_first
+    def first_compute
       first_init
       
       @modified = true
@@ -269,7 +269,7 @@ module Rpgen
     end
     
     
-    def compute_follow
+    def follow_compute
       follow_init
       
       terms = terminal_keys

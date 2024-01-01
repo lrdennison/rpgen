@@ -67,7 +67,7 @@ grammar.sum_of_products
 puts
 puts "--- Firsts ---"
 
-grammar.compute_first
+grammar.first_compute
 grammar.first.each do |k,v|
   puts "#{k} #{v}"
 end
@@ -75,7 +75,7 @@ end
 puts
 puts "--- Follow ---"
 
-grammar.compute_follow
+grammar.follow_compute
 grammar.follow.each do |k,v|
   puts "#{k} #{v}"
 end

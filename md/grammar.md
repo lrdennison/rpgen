@@ -7,3 +7,9 @@ Grammars have the usual concepts of *terminals* and *rules*.  The name
 of a terminal or rule is a Ruby symbol.
 
 The right-hand side of a rule is just an array of symbols.
+
+## Special Symbols
+
+* start
+* eof (end-of-file)
+* empty

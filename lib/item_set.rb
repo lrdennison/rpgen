@@ -5,6 +5,8 @@ module Rpgen
     attr_accessor :grammar
     attr_accessor :number
     attr_accessor :visited
+
+    attr_accessor :parent
     attr_accessor :map
 
     
@@ -12,6 +14,7 @@ module Rpgen
       @grammar = grammar
       @number = 0
       @visited = false
+      @parent = nil
       @map = Hash.new
     end
 
@@ -49,17 +52,22 @@ module Rpgen
     
     def close
       todo = symbols_of_interest
+      todo = todo.select { |sym| grammar.is_rule(sym) }
 
+      # We check to see if an item is already in the item set.
+      # During the closure operation, all added items have dot==0.
+      # We can can just check the rule numbers.
+      
       rs = Array.new
       each do |item|
-        rs.push item.rule.number
+        if item.dot==0 then
+          rs.push item.rule.number
+        end
       end
 
       while not todo.empty? do
         sym = todo.shift
-        # next if has_item( sym)
 
-        next unless grammar.is_rule( sym)
         grammar.get_rules(sym).each do |rule|
           if rs.include?(rule.number) then
             next
