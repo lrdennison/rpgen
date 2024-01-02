@@ -26,6 +26,7 @@ My goal is to extend it to Canonical LR (CLR) and Look-Ahead LR
 
 [Wikipedia LR Parser](https://en.wikipedia.org/wiki/LR_parser)
 [Compilers (aka the Dragon Book), Aho et. al](https://faculty.sist.shanghaitech.edu.cn/faculty/songfu/cav/Dragon-book.pdf)
+[Forming the LALR(1)-item automaton from the LR(0)-item automaton](http://pages.cpsc.ucalgary.ca/~robin/class/411/LALR1/LALR1_follow_sets.html)
 [First and Follow](https://www.cs.uaf.edu/~cs331/notes/FirstFollow.pdf)
 
 ### About the references

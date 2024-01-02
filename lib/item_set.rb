@@ -6,15 +6,15 @@ module Rpgen
     attr_accessor :number
     attr_accessor :visited
 
-    attr_accessor :parent
-    attr_accessor :map
+    attr_accessor :parents
+    attr_accessor :map          # goto table
 
     
     def initialize grammar
       @grammar = grammar
       @number = 0
       @visited = false
-      @parent = nil
+      @parent = Array.new
       @map = Hash.new
     end
 
@@ -44,7 +44,7 @@ module Rpgen
         # Termimals are needed for the transition table
         # next unless grammar.is_rule( sym)
         next if a.include?( sym)
-        a.unshift( sym)
+        a.push( sym)
       end
       return a
     end
@@ -87,7 +87,7 @@ module Rpgen
         
       end
 
-      sort! { |a,b| a.compare(b) }
+      # sort! { |a,b| a.compare(b) }
     end
 
 
@@ -102,10 +102,12 @@ module Rpgen
     
     def extract sym
       result = ItemSet.new( grammar)
+      result.parents = [self]
 
       each do |item|
         if item.matches(sym) then
           i = Item.new( item.rule)
+          i.is_core = true
           i.dot = item.dot + 1
           result.push i
         end
@@ -113,6 +115,10 @@ module Rpgen
       return result
     end
 
+    def core_items
+      select { |item| item.is_core }
+    end
+    
     def reduce_rule
       each do |item|
         if item.at_dot.nil? then
@@ -122,7 +128,49 @@ module Rpgen
       return nil
     end
 
+
+    # immediate follow sets
+    def ifollow sym
+      if grammar.is_start(sym) then
+        return [Rpgen::eof]
+      end
+
+      matching_items = select { |item| (item.dot > 0) and (item.at_dot==sym) }
+
+      result = []
+      matching_items.each do |item|
+        # FIXME
+        item.grammar = grammar
+        set = item.first( item.dot+1)
+        result = result.union( set)
+      end
+
+      result.uniq!
+      return result
+    end
     
+
+    def follow sym
+      set = ifollow( sym)
+      if not set.include?( Rpgen::empty) then
+        return set
+      end
+
+      if parents.empty then
+        set = set.delete( Rpgen::empty)
+        set.push( Rpgen::eof)
+        set.uniq!
+        return set
+      end
+
+      matching_items = select { |item| (item.dot > 0) and (item.at_dot==sym) }
+      heads = matching_items.map { |item| item.head }
+      heads.uniq!
+      
+    end
+    
+    
+
     def kernel
       result = ItemSet.new grammar
 

@@ -58,11 +58,21 @@ class SimpleGrammar < Rpgen::Grammar
     rule(:R) << :L
     start(:S)
   end
+
+  def unlv
+    terminal "id"
+    terminal "+"
+    start(:E)
+    rule(:E) << :T << "+" << :E
+    rule(:E) << :T
+    rule(:T) << :id
+  end
   
 end
 
+
 grammar = SimpleGrammar.new
-grammar.sum_of_products
+grammar.unlv
 
 puts
 puts "--- Firsts ---"
@@ -85,6 +95,13 @@ trans_table.grammar = grammar
 
 trans_table.generate
 
+ag = trans_table.augmented_grammar
+att = Rpgen::TransitionTable.new
+att.grammar = ag
+att.generate
+
+
+  
 puts
 puts "--- Kernels ---"
 
@@ -108,39 +125,8 @@ end
 
 puts
 
-acts = Rpgen::ActionTable.new( grammar, trans_table.item_sets)
-acts.num_states = trans_table.item_sets.count
-  
-trans_table.item_sets.each do |set|
-  state = set.number
+acts = trans_table.make_action_table
 
-  kernel = set.kernel
-
-  reductions = kernel.select { |item| item.dot >= item.rule.components.count }
-  shifts = kernel.select { |item| item.dot < item.rule.components.count }
-    
-  reductions.each do |red|
-    fset = grammar.follow[red.rule.name]
-    fset.each do |x|
-      acts.reduce state, x, red.rule.number
-    end
-  end
-    
-  grammar.terminal_keys.each do |x|
-    v = set.map[x]
-    if v then
-      acts.shift state, x, v.number
-    end
-  end
-
-  grammar.rule_keys.each do |x|
-    v = set.map[x]
-    if v then
-      acts.goto state, x, v.number
-    end
-  end
-
-end
 
 s = "<html>\n"
 
@@ -155,11 +141,31 @@ s += "</style>\n"
 
 s += "</head>\n"
 
-s += "<h1>Rules</h1>"
+s += "<h1>SLR Analysis</h1>"
+s += "<h2>Rules</h2>"
 s += grammar.rules_to_html
 
-s += "<h1>Actions</h1>"
+s += "<h2>First and Follow</h2>"
+s += grammar.first_follow_to_html
+
+s += "<h2>LR(0) States (Item Sets)</h2>"
+s += trans_table.to_html
+
+
+s += "<h2>Actions</h2>"
+s += "<p>\n"
+s += "Reduce means to pop state stack.  Lookup what was reduced in the goto table for the top-of-stack and push that new state."
+s += "</p>\n"
+
 s += acts.to_html
+
+s += "<h1>Augmented Rules</h1>"
+s += ag.rules_to_html
+
+aug_acts = att.make_action_table
+
+s += aug_acts.to_html
+
 s += "</html>\n"
 
 File.write("actions.html", s)

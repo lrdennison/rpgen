@@ -7,6 +7,7 @@ module Rpgen
     attr_accessor :t_shift
     attr_accessor :t_reduce
     attr_accessor :t_goto
+    attr_accessor :t_accept
     attr_accessor :num_states
     
     def initialize grammar, item_sets
@@ -17,10 +18,12 @@ module Rpgen
       @t_shift = Hash.new
       @t_reduce = Hash.new
       @t_goto = Hash.new
+      @t_accept = Hash.new
 
       grammar.terminal_keys.each do |x|
         @t_shift[x] = Hash.new
         @t_reduce[x] = Hash.new
+        @t_accept[x] = Hash.new
       end
       
       grammar.rule_keys.each do |x|
@@ -42,6 +45,11 @@ module Rpgen
     def goto state, sym, nxt
       h = @t_goto[sym]
       h[state] = nxt
+    end
+
+    def accept state, sym
+      h = @t_accept[sym]
+      h[state] = true
     end
 
 
@@ -82,21 +90,7 @@ module Rpgen
 
         s += "<td>"
         item_set.kernel.each do |item|
-          r = item.rule
-          s += "#{r.name}"
-          s +=  " =>"
-          dotted = false
-          r.components.each_with_index do |sym, ix|
-            if ix==item.dot then
-              s += " ."
-              dotted = true
-            end
-            s += " #{sym}"
-          end
-          unless dotted then
-            s += " ."
-          end
-          
+          s += item.to_s
           s += "<br/>"
         end
         s += "</td>"
@@ -112,6 +106,11 @@ module Rpgen
           v = @t_reduce[x][state]
           if( v) then
             s += " r#{v}"
+          end
+          
+          v = @t_accept[x][state]
+          if( v) then
+            s += " acc"
           end
           
           s += "</td>"

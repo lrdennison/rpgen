@@ -55,6 +55,8 @@ module Rpgen
           nset.close
 
           nset = insert( nset)
+          nset.parents.push( set)
+          nset.parents.uniq!
 
           set.map[sym] = nset
           unless nset.visited then
@@ -64,8 +66,132 @@ module Rpgen
       end
     end
 
+
+    
+    def make_action_table
+      acts = Rpgen::ActionTable.new( grammar, item_sets)
+      acts.num_states = item_sets.count
+      
+      item_sets.each do |set|
+        state = set.number
+
+        kernel = set.kernel
+
+        reductions = set.select { |item| item.dot >= item.rule.components.count }
+        shifts = set.select { |item| item.dot < item.rule.components.count }
+        
+        reductions.each do |red|
+          fset = grammar.follow[red.rule.name]
+          fset.each do |x|
+            acts.reduce state, x, red.rule.number
+          end
+        end
+
+        shifts.each do |item|
+          x = item.at_dot
+
+          if x==Rpgen::eof then
+            acts.accept state, x
+            next
+          end
+          
+          if grammar.is_terminal( x) then
+            v = set.map[x]
+            if v then
+              acts.shift state, x, v.number
+            end
+          end
+
+          if grammar.is_rule( x) then
+            v = set.map[x]
+            if v then
+              acts.goto state, x, v.number
+            end
+          end
+
+        end
+        
+      end
+      return acts
+    end
     
 
+
+    
+    def augmented_grammar
+      ag = Grammar.new
+
+      grammar.terminal_keys.each do |x|
+        next if x==Rpgen::start
+        next if x==Rpgen::eof
+        next if x==Rpgen::empty
+        ag.terminal x
+      end
+      
+      @item_sets.each do |item_set|
+        item_set.each do |item|
+          if item.is_starting_item then
+            rule = item.rule
+            
+            if rule.is_start then
+              sym = rule.components.first
+              n = item_set.map[sym].number
+              nsym = "#{sym}-#{n}"
+              ag.start nsym
+              next
+            end
+
+            lhs = "#{rule.name}-#{item_set.number}".to_sym
+            
+            puts "creating new rule #{lhs}"
+            nrule = ag.rule( lhs)
+            
+            rule.components.each do |sym|
+              if grammar.is_terminal( sym)
+                nrule << sym
+              else
+                n = item_set.map[sym].number
+                nsym = "#{sym}-#{n}"
+                nrule << nsym
+              end
+            end
+
+            puts "New rhs: #{nrule.components}"
+          end
+        end
+      end
+
+      return ag
+    end
+    
+
+    def to_html
+
+      s = ""
+      s += "<table>\n"
+
+      item_sets.each do |item_set|
+        item_set.each_with_index do |item, ix|
+          s += "<tr>"
+
+          if ix==0 then
+            s += "<td>#{item_set.number}</td>\n"
+          else
+            s += "<td></td>\n"
+          end
+          
+          s += "<td>#{item.to_s}</td>\n"
+
+          
+          s += "</tr>"
+        end
+      end
+      
+      s += "</table>\n"
+      return s
+      
+    end
+    
   end
 
 

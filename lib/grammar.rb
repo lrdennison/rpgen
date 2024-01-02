@@ -120,6 +120,10 @@ module Rpgen
       return r
     end
 
+
+    def verify
+    end
+    
     ############################################################
     # Helpers
     ############################################################
@@ -339,7 +343,29 @@ module Rpgen
       s += "</table>\n"
       return s
     end
+
     
+    def first_follow_to_html
+      
+      s = ""
+      s += "<table>\n"
+
+      rule_keys.each do |key|
+        s += "<tr>"
+
+        s += "<td>#{key}</td>\n"
+        t = first[key].join(",")
+        s += "<td>#{t}</td>\n"
+        t = follow[key].join(",")
+        s += "<td>#{t}</td>\n"
+
+        
+        s += "</tr>"
+      end
+      
+      s += "</table>\n"
+      return s
+    end
     
   end
   
