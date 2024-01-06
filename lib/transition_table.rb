@@ -2,21 +2,48 @@ module Rpgen
 
   class TransitionTable
     attr_accessor :grammar
+    attr_accessor :lalr
     
     attr_accessor :item_sets
     
     def initialize
       @item_sets = Array.new
+      @lalr = false
     end
 
+    def find_match item_set
 
-    def insert item_set
       @item_sets.each do |s|
-        if item_set.equals(s) then
-          return s
+        if @lalr then
+          return s if item_set.same_core?(s)
+        else
+          return s if item_set.same_core_and_follow?(s)
         end
       end
 
+      return nil
+    end
+
+    
+    def insert item_set
+
+      prior = find_match(item_set)
+
+      if prior then
+
+        if @lalr then
+          item_set.each do |item_a|
+            prior.each do |item_b|
+              if item_a.uid == item_b.uid then
+                item_b.follows = item_b.follows.union( item_a.follows).sort
+              end
+            end
+          end
+        end
+
+        return prior
+      end
+      
       item_set.number = @item_sets.count
       @item_sets.push item_set
 
@@ -32,6 +59,7 @@ module Rpgen
       rule = grammar.start_rule
       i = Item.new(rule)
       set.push i
+      i.follows.push(grammar.eof)
 
       set.close
       
@@ -39,7 +67,7 @@ module Rpgen
     end
 
 
-    def generate
+    def generate_lr0
       set = make_initial_set
       todo = [set]
       
@@ -53,8 +81,9 @@ module Rpgen
         syms.each do |sym|
           nset = set.extract( sym)
           nset.close
-
+          nset.close_follows
           nset = insert( nset)
+
           nset.parents.push( set)
           nset.parents.uniq!
 
@@ -64,9 +93,55 @@ module Rpgen
           end
         end
       end
+
+      item_sets.each do |set|
+        set.link_push_follows_to
+      end
+      
     end
 
 
+    def close_follows
+      closing = true
+      
+      while closing do
+        closing = false
+
+        item_sets.each do |set|
+
+          set.close_follows
+        
+          if set.modified then
+            puts "Set #{set.number} modified"
+            closing = true
+
+            set.each do |item|
+              nxt = item.push_follows_to
+              if nxt then
+                # puts "#{item} => #{nxt}"
+                u = nxt.follows.union( item.follows).sort
+                if u != nxt.follows then
+                  nxt.follows = u
+                  nxt_set = nxt.parent
+                  closing = true
+                  # unless todo.include?( nxt_set) then
+                  #   todo.push( nxt_set)
+                  # end
+                end
+              end
+            end
+          end
+        end
+        
+      end
+      
+    end
+
+    
+    def generate
+      generate_lr0
+      # close_follows
+    end
     
     def make_action_table
       acts = Rpgen::ActionTable.new( grammar, item_sets)
@@ -81,8 +156,7 @@ module Rpgen
         shifts = set.select { |item| item.dot < item.rule.components.count }
         
         reductions.each do |red|
-          fset = grammar.follow[red.rule.name]
-          fset.each do |x|
+          red.follows.each do |x|
             acts.reduce state, x, red.rule.number
           end
         end
@@ -90,7 +164,7 @@ module Rpgen
         shifts.each do |item|
           x = item.at_dot
 
-          if x==Rpgen::eof then
+          if x==grammar.eof then
             acts.accept state, x
             next
           end

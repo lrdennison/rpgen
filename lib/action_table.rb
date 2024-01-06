@@ -63,12 +63,12 @@ module Rpgen
       s += "<td>Kernel</td>"
 
       t_keys = grammar.terminal_keys
-      t_keys.delete_if { |k| k==Rpgen::empty }
-      t_keys.delete_if { |k| k==Rpgen::eof }
-      t_keys.push(Rpgen::eof)
+      t_keys.delete( grammar.empty)
+      t_keys.delete(grammar.eof)
+      t_keys.push(grammar.eof)
 
       r_keys = grammar.rule_keys
-      r_keys.delete_if { |k| k==Rpgen::start }
+      r_keys.delete(grammar.start_lhs)
       
 
       t_keys.each do |x|

@@ -1,78 +1,28 @@
+require_relative "component.rb"
+require_relative "terminal.rb"
+require_relative "rule.rb"
+
 module Rpgen
 
-  def self.eof
-    "$".to_sym
-  end
-  
-  def self.start
-    "$S".to_sym
-  end
-  
-  def self.empty
-    "$e".to_sym
-  end
-    
-  class Component
-    attr_accessor :name
-
-    def initialize n=nil
-      if n.is_a?(String) then
-        n = n.to_sym
-      end
-      @name = n
-    end
-  end
-
-  class Terminal < Component
-    attr_accessor :is_eof
-    attr_accessor :is_empty
-    
-    def initialize n=nil
-      super(n)
-      @is_eof = false
-      @is_empty = false
-    end
-
-  end
-  
-
-  class Rule < Component
-    attr_accessor :number
-    attr_accessor :components
-    attr_accessor :is_start
-
-    
-    def initialize n=nil
-      super(n)
-      @components = Array.new
-      @is_start = false
-    end
-
-    def << symbol
-      if symbol.is_a?(String) then
-        symbol=symbol.to_sym
-      end
-      
-      @components.push symbol
-      # puts "pushed #{symbol}"
-      return self
-    end
-
-  end
-
-
   class Grammar
-
-    
-         
     attr_accessor :terminals
     attr_accessor :rules
 
+    # first and follow are hash maps
+    # Ruby types key: Symbol, value: Array-of-Symbols
+    
     attr_accessor :first
     attr_accessor :follow
 
     attr_accessor :start_rule
     
+    # The Ruby symbols corresponding to eof (end-of-file), empty and
+    # the LHS of the starting rule.
+    
+    attr_accessor :eof
+    attr_accessor :empty
+    attr_accessor :start_lhs
+
     def initialize
       @terminals = Array.new
       @rules = Array.new
@@ -80,10 +30,14 @@ module Rpgen
       @follow = Hash.new
 
       
-      x = terminal(Rpgen::eof)
+      @eof = "$".to_sym
+      @start_lhs = "$S".to_sym
+      @empty = "$e".to_sym
+
+      x = terminal(eof)
       x.is_eof = true
 
-      x = terminal(Rpgen::empty)
+      x = terminal(empty)
       x.is_empty = true
     end
 
@@ -113,9 +67,9 @@ module Rpgen
     end
 
     def start symbol
-      r = rule(Rpgen::start)
+      r = rule(start_lhs)
       r.is_start = true
-      r << symbol << Rpgen::eof
+      r << symbol << eof
       @start_rule = r
       return r
     end
@@ -178,15 +132,15 @@ module Rpgen
     end
     
     def is_eof sym
-      sym == Rpgen::eof
+      sym == eof
     end
 
     def is_empty sym
-      sym == Rpgen::empty
+      sym == empty
     end
     
     def is_start sym
-      sym == Rpgen::start
+      sym == start_lhs
     end
     
     ############################################################
@@ -203,46 +157,67 @@ module Rpgen
       end
     end
 
-    def first_add key, x
-      if x.is_a?(Array) then
-        x.each do |v|
-          first_add key, v
-        end
-        return
-      end
-
-      set = @first[key]
-      unless set.include?( x) then
-        set.push( x)
-        @modified = true
-      end
-    end
+    # Simple fixed-point method.  Note that determining modified is a
+    # full array comparision.  It isn't clear that the per-rule set of terminals
+    # is always monotonically increasing per iteration.
     
-    
-    # Simple fixed-point method
     def first_compute
       first_init
       
-      @modified = true
-      while @modified do
-        @modified = false
-        
-        @rules.each do |rule|
-          key = rule.name
-          r = first[key]
-          rule.components.each do |symbol|
-            a = first[symbol]
-            first_add key, a
-            if not a.include?(Rpgen::empty) then
-              @first[key].delete_if { |x| x==Rpgen::empty }
-              break
-            end
+      modified = true
+      while modified do
+        modified = false
+
+        rule_keys.each do |key|
+          terms = []
+          get_rules(key).each do |rule|
+            terms = terms.union(first_of(rule.rhs))
+          end
+          unless first[key].eql?( terms) then
+            first[key] = terms
+            modified = true
           end
         end
       end
-      
     end
 
+
+
+    def first_of seq
+      result = []
+      seq.each do |sym|
+        result.delete(empty)
+        a = first[sym]
+        result = result.union( a)
+        break unless a.include?(empty)
+      end
+      result.sort!
+      return result
+    end
+    
+    
+
+    def first_of_seq seq, extra=nil
+      result = [empty]
+      seq.each do |sym|
+        result.delete(empty)
+        result = result.union( first[sym])
+        if not result.include?(empty)
+          return result
+        end
+      end
+
+      # Result includes empty so add extra terminals
+      if extra then
+        if not extra.is_a?(Array) then
+          raise "Not an array"
+        end
+        result.delete(empty)
+        result = result.union( extra)
+      end
+      
+      return result
+    end
 
     ############################################################
     # Follow
@@ -263,7 +238,7 @@ module Rpgen
       end
 
       # Don't add empty to a follow set
-      return if x==Rpgen::empty
+      return if x==empty
       
       set = @follow[key]
       unless set.include?( x) then

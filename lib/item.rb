@@ -3,7 +3,11 @@ module Rpgen
   class Item
     attr_accessor :rule
     attr_accessor :dot
-
+    attr_accessor :follows
+    attr_accessor :push_follows_to
+    
+    attr_accessor :parent       # Item Set
+    
     attr_accessor :grammar
     attr_accessor :is_core
 
@@ -11,6 +15,9 @@ module Rpgen
       @rule = rule
       @dot = 0
       @is_core = false
+      @follows = Array.new
+      @push_follows_to = nil
+      @parent = nil
     end
 
     def name
@@ -26,6 +33,11 @@ module Rpgen
       @rule.components.count
     end
 
+    # Used for simpler equivalence checking
+    def uid
+      return rule.number*1024 + dot
+    end
+    
     def at pos
       if pos >= @rule.components.count then
         return nil
@@ -38,6 +50,16 @@ module Rpgen
       return at(@dot)
     end
 
+    def post_dot
+      a = []
+      x = @dot+1
+      while x < count do
+        a.push(at(x))
+        x += 1
+      end
+      return a
+    end
+    
     def is_starting_item
       dot==0
     end
@@ -59,6 +81,10 @@ module Rpgen
       if not dotted then
         s += " &bull;"
       end
+
+      s += ", ["
+      s += follows.join( "/")
+      s += "]"
       return s
     end
     

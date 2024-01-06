@@ -59,20 +59,40 @@ class SimpleGrammar < Rpgen::Grammar
     start(:S)
   end
 
-  def unlv
-    terminal "id"
+  # Dragon, example 4.54
+  def dragon_ex_4_54
+    terminal :c
+    terminal :d
+    start(:S)
+    rule(:S) << :C << :C
+    rule(:C) << :c << :C
+    rule(:C) << :d
+  end
+
+  def stanford_cs143
+    terminal "="
     terminal "+"
-    start(:E)
-    rule(:E) << :T << "+" << :E
-    rule(:E) << :T
-    rule(:T) << :id
+    terminal "("
+    terminal ")"
+    terminal :int
+    terminal :id
+    
+    start(:S)
+    rule(:S) << :V << "=" << :E
+    rule(:E) << :F
+    rule(:E) << :E << "+" << :F
+    rule(:F) << :V
+    rule(:F) << :int
+    rule(:F) << "(" << :E << ")"
+    rule(:V) << :id
+    
   end
   
 end
 
 
 grammar = SimpleGrammar.new
-grammar.unlv
+grammar.dragon_ex_4_54
 
 puts
 puts "--- Firsts ---"
@@ -95,10 +115,10 @@ trans_table.grammar = grammar
 
 trans_table.generate
 
-ag = trans_table.augmented_grammar
-att = Rpgen::TransitionTable.new
-att.grammar = ag
-att.generate
+# ag = trans_table.augmented_grammar
+# att = Rpgen::TransitionTable.new
+# att.grammar = ag
+# att.generate
 
 
   
@@ -141,14 +161,16 @@ s += "</style>\n"
 
 s += "</head>\n"
 
-s += "<h1>SLR Analysis</h1>"
+s += "<h1>Grammar Analysis</h1>"
 s += "<h2>Rules</h2>"
 s += grammar.rules_to_html
 
 s += "<h2>First and Follow</h2>"
 s += grammar.first_follow_to_html
 
-s += "<h2>LR(0) States (Item Sets)</h2>"
+
+s += "<h1>LALR Analysis</h1>"
+s += "<h2>States (Item Sets)</h2>"
 s += trans_table.to_html
 
 
@@ -159,12 +181,12 @@ s += "</p>\n"
 
 s += acts.to_html
 
-s += "<h1>Augmented Rules</h1>"
-s += ag.rules_to_html
+# s += "<h1>Augmented Rules</h1>"
+# s += ag.rules_to_html
 
-aug_acts = att.make_action_table
+# aug_acts = att.make_action_table
 
-s += aug_acts.to_html
+# s += aug_acts.to_html
 
 s += "</html>\n"
 
