@@ -4,19 +4,19 @@ module Rpgen
     attr_accessor :rule
     attr_accessor :dot
     attr_accessor :follows
-    attr_accessor :push_follows_to
     
     attr_accessor :parent       # Item Set
     
     attr_accessor :grammar
     attr_accessor :is_core
 
+    attr_accessor :modified
+    
     def initialize rule
       @rule = rule
       @dot = 0
       @is_core = false
       @follows = Array.new
-      @push_follows_to = nil
       @parent = nil
     end
 
@@ -68,6 +68,26 @@ module Rpgen
       return sym==at_dot()
     end
 
+    def merge other
+      if rule != other.rule then
+        raise "Attempting to merge incompatible items"
+      end
+      
+      if dot != other.dot then
+        raise "Attempting to merge incompatible items"
+      end
+
+      @modified = false
+
+      u = follows.union(other.follows).sort
+      if @follows != u then
+        @follows = u
+        @modified = true
+      end
+      return @modified
+    end
+
+    
     def to_s
       s = "#{@rule.name} =>"
       dotted = false

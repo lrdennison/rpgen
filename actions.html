@@ -10,85 +10,137 @@ td { color: blue; border: 1px solid black; padding-left: 10px; padding-right: 10
 <td>$S</td>
 <td> S $</td></tr><tr><td>1</td>
 <td>S</td>
-<td> C C</td></tr><tr><td>2</td>
-<td>C</td>
-<td> c C</td></tr><tr><td>3</td>
-<td>C</td>
-<td> d</td></tr></table>
+<td> V = E</td></tr><tr><td>2</td>
+<td>E</td>
+<td> F</td></tr><tr><td>3</td>
+<td>E</td>
+<td> E + F</td></tr><tr><td>4</td>
+<td>F</td>
+<td> V</td></tr><tr><td>5</td>
+<td>F</td>
+<td> int</td></tr><tr><td>6</td>
+<td>F</td>
+<td> ( E )</td></tr><tr><td>7</td>
+<td>V</td>
+<td> id</td></tr></table>
 <h2>First and Follow</h2><table>
 <tr><td>$S</td>
-<td>c,d</td>
+<td>id</td>
 <td></td>
 </tr><tr><td>S</td>
-<td>c,d</td>
+<td>id</td>
 <td>$</td>
-</tr><tr><td>C</td>
-<td>c,d</td>
-<td>c,d,$</td>
+</tr><tr><td>E</td>
+<td>(,id,int</td>
+<td>$,+,)</td>
+</tr><tr><td>F</td>
+<td>id,int,(</td>
+<td>$,+,)</td>
+</tr><tr><td>V</td>
+<td>id</td>
+<td>=,$,+,)</td>
 </tr></table>
 <h1>LALR Analysis</h1><h2>States (Item Sets)</h2><table>
 <tr><td>0</td>
 <td>$S => &bull; S $, [$]</td>
 </tr><tr><td></td>
-<td>S => &bull; C C, [$]</td>
+<td>S => &bull; V = E, [$]</td>
 </tr><tr><td></td>
-<td>C => &bull; c C, [c/d]</td>
-</tr><tr><td></td>
-<td>C => &bull; d, [c/d]</td>
+<td>V => &bull; id, [=]</td>
 </tr><tr><td>1</td>
 <td>$S => S &bull; $, [$]</td>
 </tr><tr><td>2</td>
-<td>S => C &bull; C, [$]</td>
-</tr><tr><td></td>
-<td>C => &bull; c C, [$]</td>
-</tr><tr><td></td>
-<td>C => &bull; d, [$]</td>
+<td>S => V &bull; = E, [$]</td>
 </tr><tr><td>3</td>
-<td>C => c &bull; C, [c/d]</td>
-</tr><tr><td></td>
-<td>C => &bull; c C, [c/d]</td>
-</tr><tr><td></td>
-<td>C => &bull; d, [c/d]</td>
+<td>V => id &bull;, [$/)/+/=]</td>
 </tr><tr><td>4</td>
-<td>C => d &bull;, [c/d]</td>
+<td>S => V = &bull; E, [$]</td>
+</tr><tr><td></td>
+<td>E => &bull; F, [$/+]</td>
+</tr><tr><td></td>
+<td>E => &bull; E + F, [$/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; V, [$/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; int, [$/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; ( E ), [$/+]</td>
+</tr><tr><td></td>
+<td>V => &bull; id, [$/+]</td>
 </tr><tr><td>5</td>
-<td>S => C C &bull;, [$]</td>
+<td>S => V = E &bull;, [$]</td>
+</tr><tr><td></td>
+<td>E => E &bull; + F, [$/+]</td>
 </tr><tr><td>6</td>
-<td>C => c &bull; C, [$]</td>
-</tr><tr><td></td>
-<td>C => &bull; c C, [$]</td>
-</tr><tr><td></td>
-<td>C => &bull; d, [$]</td>
+<td>E => F &bull;, [$/)/+]</td>
 </tr><tr><td>7</td>
-<td>C => d &bull;, [$]</td>
+<td>F => V &bull;, [$/)/+]</td>
 </tr><tr><td>8</td>
-<td>C => c C &bull;, [c/d]</td>
+<td>F => int &bull;, [$/)/+]</td>
 </tr><tr><td>9</td>
-<td>C => c C &bull;, [$]</td>
+<td>F => ( &bull; E ), [$/)/+]</td>
+</tr><tr><td></td>
+<td>E => &bull; F, [)/+]</td>
+</tr><tr><td></td>
+<td>E => &bull; E + F, [)/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; V, [)/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; int, [)/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; ( E ), [)/+]</td>
+</tr><tr><td></td>
+<td>V => &bull; id, [)/+]</td>
+</tr><tr><td>10</td>
+<td>E => E + &bull; F, [$/)/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; V, [$/)/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; int, [$/)/+]</td>
+</tr><tr><td></td>
+<td>F => &bull; ( E ), [$/)/+]</td>
+</tr><tr><td></td>
+<td>V => &bull; id, [$/)/+]</td>
+</tr><tr><td>11</td>
+<td>F => ( E &bull; ), [$/)/+]</td>
+</tr><tr><td></td>
+<td>E => E &bull; + F, [)/+]</td>
+</tr><tr><td>12</td>
+<td>E => E + F &bull;, [$/)/+]</td>
+</tr><tr><td>13</td>
+<td>F => ( E ) &bull;, [$/)/+]</td>
 </tr></table>
 <h2>Actions</h2><p>
 Reduce means to pop state stack.  Lookup what was reduced in the goto table for the top-of-stack and push that new state.</p>
 <table>
-<tr><td>State</td><td>Kernel</td><td>c</td><td>d</td><td>$</td><td>S</td><td>C</td></tr>
+<tr><td>State</td><td>Kernel</td><td>=</td><td>+</td><td>(</td><td>)</td><td>int</td><td>id</td><td>$</td><td>S</td><td>E</td><td>F</td><td>V</td></tr>
 <tr>
-<td>0</td><td>$S => &bull; S $, [$]<br/></td><td> s3</td><td> s4</td><td></td><td>g1</td><td>g2</td></tr>
+<td>0</td><td>$S => &bull; S $, [$]<br/></td><td></td><td></td><td></td><td></td><td></td><td> s3</td><td></td><td>g1</td><td></td><td></td><td>g2</td></tr>
 <tr>
-<td>1</td><td>$S => S &bull; $, [$]<br/></td><td></td><td></td><td> acc</td><td></td><td></td></tr>
+<td>1</td><td>$S => S &bull; $, [$]<br/></td><td></td><td></td><td></td><td></td><td></td><td></td><td> acc</td><td></td><td></td><td></td><td></td></tr>
 <tr>
-<td>2</td><td>S => C &bull; C, [$]<br/></td><td> s6</td><td> s7</td><td></td><td></td><td>g5</td></tr>
+<td>2</td><td>S => V &bull; = E, [$]<br/></td><td> s4</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr>
-<td>3</td><td>C => c &bull; C, [c/d]<br/></td><td> s3</td><td> s4</td><td></td><td></td><td>g8</td></tr>
+<td>3</td><td>V => id &bull;, [$/)/+/=]<br/></td><td> r7</td><td> r7</td><td></td><td> r7</td><td></td><td></td><td> r7</td><td></td><td></td><td></td><td></td></tr>
 <tr>
-<td>4</td><td>C => d &bull;, [c/d]<br/></td><td> r3</td><td> r3</td><td></td><td></td><td></td></tr>
+<td>4</td><td>S => V = &bull; E, [$]<br/></td><td></td><td></td><td> s9</td><td></td><td> s8</td><td> s3</td><td></td><td></td><td>g5</td><td>g6</td><td>g7</td></tr>
 <tr>
-<td>5</td><td>S => C C &bull;, [$]<br/></td><td></td><td></td><td> r1</td><td></td><td></td></tr>
+<td>5</td><td>S => V = E &bull;, [$]<br/>E => E &bull; + F, [$/+]<br/></td><td></td><td> s10</td><td></td><td></td><td></td><td></td><td> r1</td><td></td><td></td><td></td><td></td></tr>
 <tr>
-<td>6</td><td>C => c &bull; C, [$]<br/></td><td> s6</td><td> s7</td><td></td><td></td><td>g9</td></tr>
+<td>6</td><td>E => F &bull;, [$/)/+]<br/></td><td></td><td> r2</td><td></td><td> r2</td><td></td><td></td><td> r2</td><td></td><td></td><td></td><td></td></tr>
 <tr>
-<td>7</td><td>C => d &bull;, [$]<br/></td><td></td><td></td><td> r3</td><td></td><td></td></tr>
+<td>7</td><td>F => V &bull;, [$/)/+]<br/></td><td></td><td> r4</td><td></td><td> r4</td><td></td><td></td><td> r4</td><td></td><td></td><td></td><td></td></tr>
 <tr>
-<td>8</td><td>C => c C &bull;, [c/d]<br/></td><td> r2</td><td> r2</td><td></td><td></td><td></td></tr>
+<td>8</td><td>F => int &bull;, [$/)/+]<br/></td><td></td><td> r5</td><td></td><td> r5</td><td></td><td></td><td> r5</td><td></td><td></td><td></td><td></td></tr>
 <tr>
-<td>9</td><td>C => c C &bull;, [$]<br/></td><td></td><td></td><td> r2</td><td></td><td></td></tr>
+<td>9</td><td>F => ( &bull; E ), [$/)/+]<br/></td><td></td><td></td><td> s9</td><td></td><td> s8</td><td> s3</td><td></td><td></td><td>g11</td><td>g6</td><td>g7</td></tr>
+<tr>
+<td>10</td><td>E => E + &bull; F, [$/)/+]<br/></td><td></td><td></td><td> s9</td><td></td><td> s8</td><td> s3</td><td></td><td></td><td></td><td>g12</td><td>g7</td></tr>
+<tr>
+<td>11</td><td>F => ( E &bull; ), [$/)/+]<br/>E => E &bull; + F, [)/+]<br/></td><td></td><td> s10</td><td></td><td> s13</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr>
+<td>12</td><td>E => E + F &bull;, [$/)/+]<br/></td><td></td><td> r3</td><td></td><td> r3</td><td></td><td></td><td> r3</td><td></td><td></td><td></td><td></td></tr>
+<tr>
+<td>13</td><td>F => ( E ) &bull;, [$/)/+]<br/></td><td></td><td> r6</td><td></td><td> r6</td><td></td><td></td><td> r6</td><td></td><td></td><td></td><td></td></tr>
 </table>
 </html>

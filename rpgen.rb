@@ -92,7 +92,8 @@ end
 
 
 grammar = SimpleGrammar.new
-grammar.dragon_ex_4_54
+# grammar.dragon_ex_4_54
+grammar.stanford_cs143
 
 puts
 puts "--- Firsts ---"
@@ -113,7 +114,7 @@ end
 trans_table = Rpgen::TransitionTable.new
 trans_table.grammar = grammar
 
-trans_table.generate
+trans_table.closure
 
 # ag = trans_table.augmented_grammar
 # att = Rpgen::TransitionTable.new

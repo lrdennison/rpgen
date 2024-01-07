@@ -8,7 +8,7 @@ module Rpgen
     
     def initialize
       @item_sets = Array.new
-      @lalr = false
+      @lalr = true
     end
 
     def find_match item_set
@@ -26,21 +26,13 @@ module Rpgen
 
     
     def insert item_set
-
+      item_set.modified = false
       prior = find_match(item_set)
 
       if prior then
-
         if @lalr then
-          item_set.each do |item_a|
-            prior.each do |item_b|
-              if item_a.uid == item_b.uid then
-                item_b.follows = item_b.follows.union( item_a.follows).sort
-              end
-            end
-          end
+          prior.merge( item_set)
         end
-
         return prior
       end
       
@@ -61,88 +53,42 @@ module Rpgen
       set.push i
       i.follows.push(grammar.eof)
 
-      set.close
+      set.closure
       
       return insert( set)
     end
 
 
-    def generate_lr0
-      set = make_initial_set
-      todo = [set]
+    def closure
+      todo = [make_initial_set]
       
-      while todo.count>0 do
+      until todo.empty? do
         set = todo.shift
-        next if set.visited
-        set.visited = true
         
         syms = set.symbols_of_interest
         # puts "syms: #{syms}"
         syms.each do |sym|
           nset = set.extract( sym)
-          nset.close
-          nset.close_follows
-          nset = insert( nset)
+          nset.closure
 
-          nset.parents.push( set)
-          nset.parents.uniq!
+          pset = insert( nset)
 
-          set.map[sym] = nset
-          unless nset.visited then
+          pset.parents.push( set)
+          pset.parents.uniq!
+
+          set.map[sym] = pset
+
+          if nset==pset or pset.modified then
+            pset.closure
             todo.push( nset)
           end
+          
         end
       end
 
-      item_sets.each do |set|
-        set.link_push_follows_to
-      end
-      
     end
 
 
-    def close_follows
-      closing = true
-      
-      while closing do
-        closing = false
-
-        item_sets.each do |set|
-
-          set.close_follows
-        
-          if set.modified then
-            puts "Set #{set.number} modified"
-            closing = true
-
-            set.each do |item|
-              nxt = item.push_follows_to
-              if nxt then
-                # puts "#{item} => #{nxt}"
-                u = nxt.follows.union( item.follows).sort
-                if u != nxt.follows then
-                  nxt.follows = u
-                  nxt_set = nxt.parent
-                  closing = true
-                  # unless todo.include?( nxt_set) then
-                  #   todo.push( nxt_set)
-                  # end
-                end
-              end
-            end
-          end
-        end
-        
-      end
-      
-    end
-
-    
-    def generate
-      generate_lr0
-      # close_follows
-    end
-    
     def make_action_table
       acts = Rpgen::ActionTable.new( grammar, item_sets)
       acts.num_states = item_sets.count
@@ -192,53 +138,6 @@ module Rpgen
 
 
     
-    def augmented_grammar
-      ag = Grammar.new
-
-      grammar.terminal_keys.each do |x|
-        next if x==Rpgen::start
-        next if x==Rpgen::eof
-        next if x==Rpgen::empty
-        ag.terminal x
-      end
-      
-      @item_sets.each do |item_set|
-        item_set.each do |item|
-          if item.is_starting_item then
-            rule = item.rule
-            
-            if rule.is_start then
-              sym = rule.components.first
-              n = item_set.map[sym].number
-              nsym = "#{sym}-#{n}"
-              ag.start nsym
-              next
-            end
-
-            lhs = "#{rule.name}-#{item_set.number}".to_sym
-            
-            puts "creating new rule #{lhs}"
-            nrule = ag.rule( lhs)
-            
-            rule.components.each do |sym|
-              if grammar.is_terminal( sym)
-                nrule << sym
-              else
-                n = item_set.map[sym].number
-                nsym = "#{sym}-#{n}"
-                nrule << nsym
-              end
-            end
-
-            puts "New rhs: #{nrule.components}"
-          end
-        end
-      end
-
-      return ag
-    end
-    
-
     def to_html
 
       s = ""
