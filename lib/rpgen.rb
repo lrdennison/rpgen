@@ -1,0 +1,8 @@
+require_relative "rpgen/version.rb"
+require_relative "rpgen/grammar.rb"
+require_relative "rpgen/grammar_factory.rb"
+require_relative "rpgen/item.rb"
+require_relative "rpgen/item_set.rb"
+require_relative "rpgen/transition_table.rb"
+require_relative "rpgen/action_table.rb"
+require_relative "rpgen/builder.rb"

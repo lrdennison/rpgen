@@ -39,7 +39,7 @@ module Rpgen
       item_set.number = @item_sets.count
       @item_sets.push item_set
 
-      item_set.dump
+      # item_set.dump
       
       return item_set
     end
@@ -143,6 +143,12 @@ module Rpgen
       s = ""
       s += "<table>\n"
 
+      s += "<tr>"
+      s += "<th>State</th>"
+      s += "<th>Item</th>"
+      s += "<th>Follows</th>"
+      s += "</tr>"
+      
       item_sets.each do |item_set|
         item_set.each_with_index do |item, ix|
           s += "<tr>"
@@ -154,6 +160,9 @@ module Rpgen
           end
           
           s += "<td>#{item.to_s}</td>\n"
+
+          t = item.follows.join(" ")
+          s += "<td>#{t}</td>\n"
 
           
           s += "</tr>"

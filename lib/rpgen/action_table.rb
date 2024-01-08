@@ -54,14 +54,6 @@ module Rpgen
 
 
     def to_html
-      s = ""
-
-      s += "<table>\n"
-
-      s += "<tr>"
-      s += "<td>State</td>"
-      s += "<td>Kernel</td>"
-
       t_keys = grammar.terminal_keys
       t_keys.delete( grammar.empty)
       t_keys.delete(grammar.eof)
@@ -69,13 +61,28 @@ module Rpgen
 
       r_keys = grammar.rule_keys
       r_keys.delete(grammar.start_lhs)
+
+      s = ""
+
+      s += "<table>\n"
+
+      s += "<tr>"
+      s += "<th colspan='2'></th>"
+      s += "<th class='shift' colspan='#{t_keys.count}'>Shift/Reduce</th>"
+      s += "<th class='goto' colspan='#{r_keys.count}'>Goto</th>"
+      s += "</tr>"
+
+      s += "<tr>"
+      s += "<th>State</th>"
+      s += "<th>Kernel</th>"
+
       
 
       t_keys.each do |x|
-        s += "<td>#{x}</td>"
+        s += "<th class='shift'>#{x}</th>"
       end
       r_keys.each do |x|
-        s += "<td>#{x}</td>"
+        s += "<th class='goto'>#{x}</th>"
       end
       
       s += "</tr>\n"
@@ -97,7 +104,7 @@ module Rpgen
         
         
         t_keys.each do |x|
-          s += "<td>"
+          s += "<td class='shift'>"
           v = @t_shift[x][state]
           if( v) then
             s += " s#{v}"
@@ -117,7 +124,7 @@ module Rpgen
         end
         
         r_keys.each do |x|
-          s += "<td>"
+          s += "<td class='goto'>"
           v = @t_goto[x][state]
           if( v) then
             s += "g#{v}"

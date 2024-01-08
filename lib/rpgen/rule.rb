@@ -27,6 +27,10 @@ module Rpgen
     end
 
 
+    def lhs
+      @name
+    end
+    
     def components
       @rhs
     end

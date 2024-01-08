@@ -59,7 +59,9 @@ module Rpgen
       return x
     end
 
-    def rule symbol
+    def rule n
+      symbol = n.to_sym
+
       x = Rule.new symbol
       x.number = @rules.count
       @rules.push( x)
@@ -300,6 +302,12 @@ module Rpgen
       s = ""
       s += "<table>\n"
 
+      s += "<tr>"
+      s += "<th>#</th>"
+      s += "<th>LHS</th>"
+      s += "<th>RHS</th>"
+      s += "</tr>"
+      
       rules.each do |rule|
         s += "<tr>"
 
@@ -324,6 +332,12 @@ module Rpgen
       
       s = ""
       s += "<table>\n"
+
+      s += "<tr>"
+      s += "<th>Non-Terminal</th>"
+      s += "<th>First</th>"
+      s += "<th>Follow</th>"
+      s += "</tr>"
 
       rule_keys.each do |key|
         s += "<tr>"

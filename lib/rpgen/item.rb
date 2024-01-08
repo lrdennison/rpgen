@@ -102,9 +102,9 @@ module Rpgen
         s += " &bull;"
       end
 
-      s += ", ["
-      s += follows.join( "/")
-      s += "]"
+      # s += ", ["
+      # s += follows.join( "/")
+      # s += "]"
       return s
     end
     
