@@ -7,6 +7,7 @@ th.goto { background: lightyellow;}
 td.goto { background: lightyellow;}
 th.shift { background: honeydew;}
 td.shift { background: honeydew;}
+td.error { background: pink;}
 td { color: blue; border: 1px solid black; padding-left: 10px; padding-right: 10px;}
 </style>
 </head>
@@ -39,7 +40,7 @@ td { color: blue; border: 1px solid black; padding-left: 10px; padding-right: 10
 <td>(,id,int</td>
 <td>$,+,)</td>
 </tr><tr><td>F</td>
-<td>id,int,(</td>
+<td>(,id,int</td>
 <td>$,+,)</td>
 </tr><tr><td>V</td>
 <td>id</td>
@@ -63,46 +64,46 @@ td { color: blue; border: 1px solid black; padding-left: 10px; padding-right: 10
 <td>$</td>
 </tr><tr><td>3</td>
 <td>V => id &bull;</td>
-<td>$ ) + =</td>
+<td>=</td>
 </tr><tr><td>4</td>
 <td>S => V = &bull; E</td>
 <td>$</td>
 </tr><tr><td></td>
 <td>E => &bull; F</td>
-<td>$ +</td>
+<td>+ )</td>
 </tr><tr><td></td>
 <td>E => &bull; E + F</td>
-<td>$ +</td>
+<td>+ )</td>
 </tr><tr><td></td>
 <td>F => &bull; V</td>
-<td>$ +</td>
+<td></td>
 </tr><tr><td></td>
 <td>F => &bull; int</td>
-<td>$ +</td>
+<td></td>
 </tr><tr><td></td>
 <td>F => &bull; ( E )</td>
-<td>$ +</td>
+<td></td>
 </tr><tr><td></td>
 <td>V => &bull; id</td>
-<td>$ +</td>
+<td></td>
 </tr><tr><td>5</td>
 <td>S => V = E &bull;</td>
 <td>$</td>
 </tr><tr><td></td>
 <td>E => E &bull; + F</td>
-<td>$ +</td>
+<td>+ )</td>
 </tr><tr><td>6</td>
 <td>E => F &bull;</td>
-<td>$ ) +</td>
+<td>+ )</td>
 </tr><tr><td>7</td>
 <td>F => V &bull;</td>
-<td>$ ) +</td>
+<td></td>
 </tr><tr><td>8</td>
 <td>F => int &bull;</td>
-<td>$ ) +</td>
+<td></td>
 </tr><tr><td>9</td>
 <td>F => ( &bull; E )</td>
-<td>$ ) +</td>
+<td></td>
 </tr><tr><td></td>
 <td>E => &bull; F</td>
 <td>) +</td>
@@ -111,43 +112,43 @@ td { color: blue; border: 1px solid black; padding-left: 10px; padding-right: 10
 <td>) +</td>
 </tr><tr><td></td>
 <td>F => &bull; V</td>
-<td>) +</td>
+<td></td>
 </tr><tr><td></td>
 <td>F => &bull; int</td>
-<td>) +</td>
+<td></td>
 </tr><tr><td></td>
 <td>F => &bull; ( E )</td>
-<td>) +</td>
+<td></td>
 </tr><tr><td></td>
 <td>V => &bull; id</td>
-<td>) +</td>
+<td></td>
 </tr><tr><td>10</td>
 <td>E => E + &bull; F</td>
-<td>$ ) +</td>
+<td>+ )</td>
 </tr><tr><td></td>
 <td>F => &bull; V</td>
-<td>$ ) +</td>
+<td></td>
 </tr><tr><td></td>
 <td>F => &bull; int</td>
-<td>$ ) +</td>
+<td></td>
 </tr><tr><td></td>
 <td>F => &bull; ( E )</td>
-<td>$ ) +</td>
+<td></td>
 </tr><tr><td></td>
 <td>V => &bull; id</td>
-<td>$ ) +</td>
+<td></td>
 </tr><tr><td>11</td>
 <td>F => ( E &bull; )</td>
-<td>$ ) +</td>
+<td></td>
 </tr><tr><td></td>
 <td>E => E &bull; + F</td>
 <td>) +</td>
 </tr><tr><td>12</td>
 <td>E => E + F &bull;</td>
-<td>$ ) +</td>
+<td>+ )</td>
 </tr><tr><td>13</td>
 <td>F => ( E ) &bull;</td>
-<td>$ ) +</td>
+<td></td>
 </tr></table>
 <h2>Actions</h2><p>
 Reduce means to pop state stack.  Lookup what was reduced in the goto table for the top-of-stack and push that new state.</p>
@@ -160,17 +161,17 @@ Reduce means to pop state stack.  Lookup what was reduced in the goto table for 
 <tr>
 <td>2</td><td>S => V &bull; = E<br/></td><td class='shift'> s4</td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 <tr>
-<td>3</td><td>V => id &bull;<br/></td><td class='shift'> r7</td><td class='shift'> r7</td><td class='shift'></td><td class='shift'> r7</td><td class='shift'></td><td class='shift'></td><td class='shift'> r7</td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
+<td>3</td><td>V => id &bull;<br/></td><td class='shift'> r7</td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 <tr>
 <td>4</td><td>S => V = &bull; E<br/></td><td class='shift'></td><td class='shift'></td><td class='shift'> s9</td><td class='shift'></td><td class='shift'> s8</td><td class='shift'> s3</td><td class='shift'></td><td class='goto'></td><td class='goto'>g5</td><td class='goto'>g6</td><td class='goto'>g7</td></tr>
 <tr>
 <td>5</td><td>S => V = E &bull;<br/>E => E &bull; + F<br/></td><td class='shift'></td><td class='shift'> s10</td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'> r1</td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 <tr>
-<td>6</td><td>E => F &bull;<br/></td><td class='shift'></td><td class='shift'> r2</td><td class='shift'></td><td class='shift'> r2</td><td class='shift'></td><td class='shift'></td><td class='shift'> r2</td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
+<td>6</td><td>E => F &bull;<br/></td><td class='shift'></td><td class='shift'> r2</td><td class='shift'></td><td class='shift'> r2</td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 <tr>
-<td>7</td><td>F => V &bull;<br/></td><td class='shift'></td><td class='shift'> r4</td><td class='shift'></td><td class='shift'> r4</td><td class='shift'></td><td class='shift'></td><td class='shift'> r4</td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
+<td>7</td><td>F => V &bull;<br/></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 <tr>
-<td>8</td><td>F => int &bull;<br/></td><td class='shift'></td><td class='shift'> r5</td><td class='shift'></td><td class='shift'> r5</td><td class='shift'></td><td class='shift'></td><td class='shift'> r5</td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
+<td>8</td><td>F => int &bull;<br/></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 <tr>
 <td>9</td><td>F => ( &bull; E )<br/></td><td class='shift'></td><td class='shift'></td><td class='shift'> s9</td><td class='shift'></td><td class='shift'> s8</td><td class='shift'> s3</td><td class='shift'></td><td class='goto'></td><td class='goto'>g11</td><td class='goto'>g6</td><td class='goto'>g7</td></tr>
 <tr>
@@ -178,8 +179,8 @@ Reduce means to pop state stack.  Lookup what was reduced in the goto table for 
 <tr>
 <td>11</td><td>F => ( E &bull; )<br/>E => E &bull; + F<br/></td><td class='shift'></td><td class='shift'> s10</td><td class='shift'></td><td class='shift'> s13</td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 <tr>
-<td>12</td><td>E => E + F &bull;<br/></td><td class='shift'></td><td class='shift'> r3</td><td class='shift'></td><td class='shift'> r3</td><td class='shift'></td><td class='shift'></td><td class='shift'> r3</td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
+<td>12</td><td>E => E + F &bull;<br/></td><td class='shift'></td><td class='shift'> r3</td><td class='shift'></td><td class='shift'> r3</td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 <tr>
-<td>13</td><td>F => ( E ) &bull;<br/></td><td class='shift'></td><td class='shift'> r6</td><td class='shift'></td><td class='shift'> r6</td><td class='shift'></td><td class='shift'></td><td class='shift'> r6</td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
+<td>13</td><td>F => ( E ) &bull;<br/></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='shift'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td><td class='goto'></td></tr>
 </table>
 </body></html>

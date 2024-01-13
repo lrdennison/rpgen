@@ -2,20 +2,28 @@ module Rpgen
 
   class Builder
     include GrammarFactory
+    include ParserType
 
+    
     attr_accessor :grammar
     attr_accessor :trans_table
     attr_accessor :action_table
 
     def initialize
+      super()
+      
+      self.parser_type = :LALR
+      
       @grammar = Grammar.new
-      @trans_table = TransitionTable.new
-      @trans_table.grammar = grammar
     end
 
     def build
       grammar.first_compute
       grammar.follow_compute
+
+      @trans_table = TransitionTable.new
+      @trans_table.parser_type = parser_type
+      @trans_table.grammar = grammar
       
       trans_table.closure
 
@@ -47,6 +55,7 @@ module Rpgen
       s += "td.goto { background: lightyellow;}\n"
       s += "th.shift { background: honeydew;}\n"
       s += "td.shift { background: honeydew;}\n"
+      s += "td.error { background: pink;}\n"
       s += "td { color: blue; border: 1px solid black; padding-left: 10px; padding-right: 10px;}\n"
 
       s += "</style>\n"
@@ -83,7 +92,7 @@ module Rpgen
 
     def html_trans_table
       s = ""
-      s += "<h1>LALR Analysis</h1>"
+      s += "<h1>#{parser_type} Analysis</h1>"
       s += "<h2>States (Item Sets)</h2>"
       s += trans_table.to_html
       return s

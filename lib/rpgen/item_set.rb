@@ -2,19 +2,23 @@ module Rpgen
 
   class ItemSet < Array
 
+    include ParserType
+    
     attr_accessor :grammar
     attr_accessor :number
     attr_accessor :modified
 
     attr_accessor :parents
-    attr_accessor :map          # goto table
+    attr_accessor :transitions          # goto table
 
     
     def initialize grammar
+      super()
+      
       @grammar = grammar
       @number = 0
       @parent = Array.new
-      @map = Hash.new
+      @transitions = Hash.new
     end
 
     def insert item
@@ -37,11 +41,48 @@ module Rpgen
 
     
     def same_core? other
-      each do |item_a|
-        next unless item_a.is_core
-        item_b = other.by_uid( item_a.uid)
-        return false if item_b.nil?
+      puts "same_core?"
+      a_cores = self.select { |x| x.is_core }
+      b_cores = other.select { |x| x.is_core }
+
+      if a_cores.count==0 then
+        raise "Item set with no core items?"
       end
+
+      if b_cores.count==0 then
+        raise "Item set with no core items?"
+      end
+
+      if a_cores.count!=b_cores.count then
+        puts "  Different count"
+        return false
+      end
+
+      puts "  a_cores:"
+      a_cores.each do |item|
+        puts "    #{item}"
+      end
+      puts "  b_cores:"
+      b_cores.each do |item|
+        puts "    #{item}"
+      end
+
+      
+      
+      a_uids = a_cores.map { |x| x.uid }
+      b_uids = b_cores.map { |x| x.uid }
+      
+      a_uids.sort!
+      b_uids.sort!
+
+      a_uids.count.times do |ix|
+        if a_uids[ix] != b_uids[ix] then
+          puts "  UIDs are different"
+          return false
+        end
+      end
+
+      puts "  item sets have the same core"
       return true
     end
 
@@ -54,6 +95,22 @@ module Rpgen
         return false if item_a.follows.sort != item_b.follows.sort
       end
       return true
+    end
+
+    
+    def is_same_as? other
+      case parser_type
+      when :LR0
+        return same_core?(other)
+      when :SLR
+        return same_core?(other)
+      when :LALR
+        return same_core?(other)
+      when :LR1
+        return same_core_and_follow?(other)
+      end
+
+      raise "Unknown parser_type"
     end
     
 
@@ -69,7 +126,9 @@ module Rpgen
         if item_b.nil? then
           raise "Merge of incompatible item sets - no matching item?"
         end
-        @modified ||= item_a.merge( item_b)
+        if item_a.merge(item_b) then
+          @modified = true
+        end
       end
       return @modified
     end
@@ -159,6 +218,7 @@ module Rpgen
     
     def extract sym
       result = ItemSet.new( grammar)
+      result.parser_type = parser_type
       result.parents = [self]
 
       each do |item|

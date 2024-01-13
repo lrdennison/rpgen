@@ -16,7 +16,7 @@ module Rpgen
       @rule = rule
       @dot = 0
       @is_core = false
-      @follows = Array.new
+      @follows = UniqueArray.new
       @parent = nil
     end
 
@@ -35,7 +35,7 @@ module Rpgen
 
     # Used for simpler equivalence checking
     def uid
-      return rule.number*1024 + dot
+      return @rule.number*1024 + @dot
     end
     
     def at pos
@@ -77,13 +77,8 @@ module Rpgen
         raise "Attempting to merge incompatible items"
       end
 
-      @modified = false
+      @modified = @follows.merge!( other.follows)
 
-      u = follows.union(other.follows).sort
-      if @follows != u then
-        @follows = u
-        @modified = true
-      end
       return @modified
     end
 

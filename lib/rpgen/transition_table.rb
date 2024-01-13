@@ -1,24 +1,23 @@
 module Rpgen
 
   class TransitionTable
+    include ParserType
+    
     attr_accessor :grammar
     attr_accessor :lalr
     
     attr_accessor :item_sets
     
     def initialize
+      super
       @item_sets = Array.new
       @lalr = true
     end
 
+    
     def find_match item_set
-
       @item_sets.each do |s|
-        if @lalr then
-          return s if item_set.same_core?(s)
-        else
-          return s if item_set.same_core_and_follow?(s)
-        end
+        return s if item_set.is_same_as?(s)
       end
 
       return nil
@@ -26,16 +25,6 @@ module Rpgen
 
     
     def insert item_set
-      item_set.modified = false
-      prior = find_match(item_set)
-
-      if prior then
-        if @lalr then
-          prior.merge( item_set)
-        end
-        return prior
-      end
-      
       item_set.number = @item_sets.count
       @item_sets.push item_set
 
@@ -47,11 +36,16 @@ module Rpgen
     
     def make_initial_set
       set = ItemSet.new( grammar)
+      set.parser_type = parser_type
       
       rule = grammar.start_rule
       i = Item.new(rule)
+      i.is_core = true
       set.push i
-      i.follows.push(grammar.eof)
+
+      if parser_type_uses_follows? then
+        i.follows.push(grammar.eof)
+      end
 
       set.closure
       
@@ -60,27 +54,44 @@ module Rpgen
 
 
     def closure
-      todo = [make_initial_set]
+      todo = UniqueArray.new
+      todo.push(make_initial_set)
       
       until todo.empty? do
         set = todo.shift
         
         syms = set.symbols_of_interest
-        # puts "syms: #{syms}"
+        puts "syms: #{syms}"
         syms.each do |sym|
+          explore_new_set = true
+          
           nset = set.extract( sym)
           nset.closure
 
-          pset = insert( nset)
+          prior = find_match( nset)
+          if prior then
+            puts "found a prior"
+            explore_new_set = false
+            if parser_type==:LALR then
+              prior.merge( nset)
+              if prior.modified then
+                explore_new_set = true
+                prior.closure
+              end
+            end
+            nset = prior
+          else
+            insert( nset)
+          end
+          
+            
+          nset.parents.push( set)
+          nset.parents.uniq!
 
-          pset.parents.push( set)
-          pset.parents.uniq!
+          set.transitions[sym] = nset
 
-          set.map[sym] = pset
-
-          if nset==pset or pset.modified then
-            pset.closure
-            todo.push( nset)
+          if explore_new_set then
+            todo.push_if_unique( nset)
           end
           
         end
@@ -102,7 +113,18 @@ module Rpgen
         shifts = set.select { |item| item.dot < item.rule.components.count }
         
         reductions.each do |red|
-          red.follows.each do |x|
+
+          a = []
+          case parser_type
+          when :LR0
+            a = grammar.terminal_keys
+          when :SLR
+            a = grammar.follow[red.rule.lhs]
+          when :LALR, :LR1
+            a = red.follows
+          end
+          
+          a.each do |x|
             acts.reduce state, x, red.rule.number
           end
         end
@@ -116,14 +138,14 @@ module Rpgen
           end
           
           if grammar.is_terminal( x) then
-            v = set.map[x]
+            v = set.transitions[x]
             if v then
               acts.shift state, x, v.number
             end
           end
 
           if grammar.is_rule( x) then
-            v = set.map[x]
+            v = set.transitions[x]
             if v then
               acts.goto state, x, v.number
             end

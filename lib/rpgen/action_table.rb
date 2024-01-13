@@ -102,26 +102,40 @@ module Rpgen
         end
         s += "</td>"
         
-        
         t_keys.each do |x|
-          s += "<td class='shift'>"
+          cnt = 0
+          data = ""
+
           v = @t_shift[x][state]
           if( v) then
-            s += " s#{v}"
+            data += " s#{v}"
+            cnt += 1
           end
 
           v = @t_reduce[x][state]
           if( v) then
-            s += " r#{v}"
+            data += " r#{v}"
+            cnt += 1
           end
           
           v = @t_accept[x][state]
           if( v) then
-            s += " acc"
+            data += " acc"
+            cnt += 1
           end
           
+          if cnt<=1 then
+            s += "<td class='shift'>"
+          else
+            s += "<td class='error'>"
+          end
+          
+          s += data
           s += "</td>"
+
         end
+
+
         
         r_keys.each do |x|
           s += "<td class='goto'>"

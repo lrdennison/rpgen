@@ -151,11 +151,12 @@ module Rpgen
 
     def first_init
       terminal_keys.each do |x|
-        @first[x] = [x]
+        @first[x] = UniqueArray.new
+        @first[x].push_if_unique(x)
       end
 
       rule_keys.each do |x|
-        @first[x] = Array.new
+        @first[x] = UniqueArray.new
       end
     end
 
@@ -173,7 +174,7 @@ module Rpgen
         rule_keys.each do |key|
           terms = []
           get_rules(key).each do |rule|
-            terms = terms.union(first_of(rule.rhs))
+            terms = terms.union(first_of(rule.rhs)).sort
           end
           unless first[key].eql?( terms) then
             first[key] = terms
@@ -186,11 +187,17 @@ module Rpgen
 
 
     def first_of seq
-      result = []
+      result = UniqueArray.new
+      if seq.empty? then
+        return result
+      end
+      
+      result.push(empty)
+      
       seq.each do |sym|
         result.delete(empty)
         a = first[sym]
-        result = result.union( a)
+        result.merge!( a)
         break unless a.include?(empty)
       end
       result.sort!
@@ -200,22 +207,17 @@ module Rpgen
     
 
     def first_of_seq seq, extra=nil
-      result = [empty]
-      seq.each do |sym|
-        result.delete(empty)
-        result = result.union( first[sym])
-        if not result.include?(empty)
-          return result
+      result = first_of(seq)
+      
+      if result.include?(empty) then
+        # Result includes empty so add extra terminals
+        if extra then
+          if not extra.is_a?(Array) then
+            raise "Not an array"
+          end
+          result.delete(empty)
+          result.merge!( extra)
         end
-      end
-
-      # Result includes empty so add extra terminals
-      if extra then
-        if not extra.is_a?(Array) then
-          raise "Not an array"
-        end
-        result.delete(empty)
-        result = result.union( extra)
       end
       
       return result
