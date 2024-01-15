@@ -41,7 +41,7 @@ module Rpgen
 
     
     def same_core? other
-      puts "same_core?"
+      # puts "same_core?"
       a_cores = self.select { |x| x.is_core }
       b_cores = other.select { |x| x.is_core }
 
@@ -54,20 +54,18 @@ module Rpgen
       end
 
       if a_cores.count!=b_cores.count then
-        puts "  Different count"
+        # puts "  Different count"
         return false
       end
 
-      puts "  a_cores:"
-      a_cores.each do |item|
-        puts "    #{item}"
-      end
-      puts "  b_cores:"
-      b_cores.each do |item|
-        puts "    #{item}"
-      end
-
-      
+      # puts "  a_cores:"
+      # a_cores.each do |item|
+      #   puts "    #{item}"
+      # end
+      # puts "  b_cores:"
+      # b_cores.each do |item|
+      #   puts "    #{item}"
+      # end
       
       a_uids = a_cores.map { |x| x.uid }
       b_uids = b_cores.map { |x| x.uid }
@@ -77,12 +75,12 @@ module Rpgen
 
       a_uids.count.times do |ix|
         if a_uids[ix] != b_uids[ix] then
-          puts "  UIDs are different"
+          # puts "  UIDs are different"
           return false
         end
       end
 
-      puts "  item sets have the same core"
+      # puts "  item sets have the same core"
       return true
     end
 
@@ -135,9 +133,10 @@ module Rpgen
 
     
     def dump
-      puts "item set #{number}"
+      puts "  item set #{number}"
       each do |s|
-        puts "  #{s}"
+        a = s.follows.join(" ")
+        puts "    #{s}   #{a}"
       end
     end
 
@@ -175,7 +174,13 @@ module Rpgen
     
     # This is the LR(1) closure function from the Dragon book
     
-    def closure
+    def closure verbose=false
+
+      if verbose then
+        puts "=========="
+        puts "closure of item set"
+      end
+      
       @modified = false
       
       todo = Array.new
@@ -185,23 +190,48 @@ module Rpgen
         
       until todo.empty? do
         item = todo.shift
+        if verbose then
+          s = item.follows.join(" ")
+          puts "visiting #{item} with follows #{s}"
+        end
         
         sym = item.at_dot
         next if sym.nil?
         next unless grammar.is_rule(sym)
 
+        if verbose then
+          puts "expanding #{sym}"
+        end
+        
         seq = item.post_dot
         follows = grammar.first_of_seq seq, item.follows
 
+        if verbose then
+          if seq.empty? then
+            puts "  post-dot sequence contains no symbols"
+          else
+            s = seq.join(" ")
+            puts "  post-dot sequence #{s}"
+          end
+
+          if follows.empty? then
+            puts "  follows is empty"
+          else
+            s = follows.join(" ")
+            puts "  follows is #{s}"
+          end
+        end
+        
+        
         grammar.get_rules(sym).each do |rule|
           i = Item.new( rule)
-          i.follows = follows
+          i.follows = follows.dup
           
           prior = by_uid( i.uid)
           if prior then
             if prior.merge( i) then
               @modified = true
-              todo.push( i)
+              todo.push( prior)
             end
             next
           end
@@ -211,7 +241,18 @@ module Rpgen
           @modified = true
         end
 
+        
       end
+
+      if verbose then
+        puts "Closure complete"
+        each do |item|
+          s = item.follows.join(" ")
+          puts "#{item} with follows #{s}"
+        end
+        puts "-------------------"
+      end
+      
     end
 
       # This is the GOTO(I,X) function, Dragon pg. 261, done object-oriented style.
@@ -227,7 +268,7 @@ module Rpgen
           i.is_core = true
           i.dot = item.dot + 1
 
-          i.follows = item.follows
+          i.follows = item.follows.dup
           result.insert i
         end
       end

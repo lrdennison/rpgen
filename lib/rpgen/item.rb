@@ -84,6 +84,28 @@ module Rpgen
 
     
     def to_s
+      dot_s = ".dot"
+      
+      s = "#{@rule.name} =>"
+      dotted = false
+      @rule.components.each_with_index do |sym, ix|
+        if ix==@dot then
+          s += " #{dot_s}"
+          dotted = true
+        end
+        s += " #{sym}"
+      end
+      if not dotted then
+        s += " #{dot_s}"
+      end
+
+      # s += ", ["
+      # s += follows.join( "/")
+      # s += "]"
+      return s
+    end
+
+    def to_html
       s = "#{@rule.name} =>"
       dotted = false
       @rule.components.each_with_index do |sym, ix|
@@ -102,6 +124,7 @@ module Rpgen
       # s += "]"
       return s
     end
+
     
     def compare other
       return -1 if rule.number < other.rule.number

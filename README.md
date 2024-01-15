@@ -61,6 +61,7 @@ revisit item sets only when changed.
 * [Compilers (aka the Dragon Book), Aho et. al](https://faculty.sist.shanghaitech.edu.cn/faculty/songfu/cav/Dragon-book.pdf)
 * [Forming the LALR(1)-item automaton from the LR(0)-item automaton](http://pages.cpsc.ucalgary.ca/~robin/class/411/LALR1/LALR1_follow_sets.html)
 * [First and Follow](https://www.cs.uaf.edu/~cs331/notes/FirstFollow.pdf)
+* [LALR Parsing, CS143 Summer 2008, Handout 11 July 9, 2008.  By Maggie Johnson and revised by Julie Zelenski](https://suif.stanford.edu/dragonbook/lecture-notes/Stanford-CS143/11-LALR-Parsing.pdf)
 
 ### About the references
 

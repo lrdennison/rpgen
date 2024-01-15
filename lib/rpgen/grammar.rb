@@ -209,7 +209,7 @@ module Rpgen
     def first_of_seq seq, extra=nil
       result = first_of(seq)
       
-      if result.include?(empty) then
+      if result.empty? or result.include?(empty) then
         # Result includes empty so add extra terminals
         if extra then
           if not extra.is_a?(Array) then

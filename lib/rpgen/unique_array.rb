@@ -23,6 +23,14 @@ module Rpgen
       end
       return m
     end
+
+    def dup
+      a = UniqueArray.new
+      each do |v|
+        a.push v
+      end
+      return a
+    end
     
   end
   

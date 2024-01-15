@@ -32,7 +32,15 @@ module Rpgen
       
       return item_set
     end
-    
+
+
+    def dump
+      puts "Transition Table"
+      item_sets.each do |set|
+        set.dump
+      end
+      
+    end
     
     def make_initial_set
       set = ItemSet.new( grammar)
@@ -47,7 +55,7 @@ module Rpgen
         i.follows.push(grammar.eof)
       end
 
-      set.closure
+      set.closure(false)
       
       return insert( set)
     end
@@ -61,16 +69,17 @@ module Rpgen
         set = todo.shift
         
         syms = set.symbols_of_interest
-        puts "syms: #{syms}"
+        # puts "syms: #{syms}"
         syms.each do |sym|
           explore_new_set = true
-          
+
           nset = set.extract( sym)
-          nset.closure
+          nset.number = item_sets.count
+          nset.closure false
 
           prior = find_match( nset)
           if prior then
-            puts "found a prior"
+            # puts "found a prior at #{prior.number}"
             explore_new_set = false
             if parser_type==:LALR then
               prior.merge( nset)
@@ -96,7 +105,6 @@ module Rpgen
           
         end
       end
-
     end
 
 
@@ -167,6 +175,7 @@ module Rpgen
 
       s += "<tr>"
       s += "<th>State</th>"
+      s += "<th>Core</th>"
       s += "<th>Item</th>"
       s += "<th>Follows</th>"
       s += "</tr>"
@@ -180,6 +189,12 @@ module Rpgen
           else
             s += "<td></td>\n"
           end
+
+          s += "<td>"
+          if item.is_core then
+            s += "core"
+          end
+          s += "</td>"
           
           s += "<td>#{item.to_s}</td>\n"
 
